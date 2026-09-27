@@ -1,0 +1,29 @@
+# Required Python Libraries
+
+streamlit
+numpy
+pandas
+matplotlib
+plotly
+scikit-learn
+openpyxl
+
+# Installation Commands
+
+pip install streamlit
+pip install numpy
+pip install pandas
+pip install matplotlib
+pip install plotly
+pip install scikit-learn
+pip install openpyxl
+
+# Python Import Aliases
+
+import streamlit as st
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import plotly
+import sklearn
+import openpyxl
