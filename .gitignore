@@ -5,3 +5,7 @@ __pycache__/
 # Generated data
 3_Results/
 *.csv
+
+.venv/
+venv/
+env/
