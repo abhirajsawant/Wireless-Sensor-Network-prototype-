@@ -1,69 +1,41 @@
-%% STEP 1 - 3D WSN SETUP AND NODE DEPLOYMENT
-% WSN  = Wireless Sensor Network
-% BS   = Base Station
-% SN   = Sensor Nodes
-% Eo   = Initial Energy
-% Job  : Create the 3D network, deploy nodes, calculate BS distance,
-%        and display the initial network.
-
 clear;
 clc;
 close all;
-
-%% 1. NETWORK PARAMETERS
-% Working: Define the number of nodes, network dimensions,
-%          initial node energy, and Base Station position.
-
-SN = 100;
-
+SN = 100;  
 area_x = 100;
 area_y = 100;
 area_z = 100;
-
-Eo = 0.5;
-
+Eo=0.5;          %initial energy
 BS.x = 50;
-BS.y = 50;
-BS.z = 0;
+BS.y= 50;
+BS.z= 0;
 
-%% 2. NODE STRUCTURE
-% Working: Store position, energy, CH information,
-%          and Main CH information for every sensor node.
-
-node = struct( ...
-    'x',0,'y',0,'z',0, ...
-    'energy',0, ...
-    'distanceBS',0, ...
-    'avgClusterEnergy',0, ...
-    'CH_x',0,'CH_y',0,'CH_z',0, ...
-    'isCH',false, ...
-    'isMainCH',false);
-
-%% 3. 3D NODE DEPLOYMENT
-% Working: Randomly deploy every sensor node inside
-%          the 100 x 100 x 100 m network area.
 
 for i = 1:SN
+    node(i).x = rand*area_x;
+    node(i).y = rand*area_y;
+    node(i).z = rand*area_z;
 
-    node(i).x = rand * area_x;
-    node(i).y = rand * area_y;
-    node(i).z = rand * area_z;
+    node(i).energy =Eo;
 
-    node(i).energy = Eo;
 
-    %% Distance from node to BS
-    % Working: Calculate 3D Euclidean distance between
-    %          each sensor node and the Base Station.
-
-    node(i).distanceBS = sqrt( ...
+    %distance from Node to BS
+    node(i).distanceBS = sqrt(...
         (node(i).x - BS.x)^2 + ...
-        (node(i).y - BS.y)^2 + ...
-        (node(i).z - BS.z)^2);
+        (node(i).y - BS.y)^2 + (node(i).z - BS.z)^2);
+
+    %average cludster energy
+    node(i).avgClusterEnergy =0;
+
+    %initiating CH coordinate
+    node(i).CH_x = 0;
+    node(i).CH_y = 0;
+    node(i).CH_z = 0;
 
 end
+% 0.3 Initial average energy
 
-%% 4. INITIAL NETWORK ENERGY
-% Working: Calculate the average initial energy of all nodes.
+allEnergy = [node.energy];
 
 initialAvgEnergy = mean([node.energy]);
 
@@ -71,104 +43,72 @@ for i = 1:SN
     node(i).avgClusterEnergy = initialAvgEnergy;
 end
 
-%% 5. NODE INFORMATION PACKET
-% Packet = Information carried/used for node processing.
-% Columns:
-% 1 = X position
-% 2 = Y position
-% 3 = Z position
-% 4 = Residual energy
-% 5 = Distance to BS
-% 6 = Average cluster energy
-% 7 = CH X position
-% 8 = CH Y position
-% 9 = CH Z position
-
-NodeInfo_Packet = zeros(SN,9);
+NodeInfo_Packet = zeros(SN, 9);
 
 for i = 1:SN
 
-    NodeInfo_Packet(i,:) = [ ...
-        node(i).x, ...
-        node(i).y, ...
-        node(i).z, ...
-        node(i).energy, ...
-        node(i).distanceBS, ...
-        node(i).avgClusterEnergy, ...
-        node(i).CH_x, ...
-        node(i).CH_y, ...
-        node(i).CH_z];
+    NodeInfo_Packet(i,1) = node(i).x;
+    NodeInfo_Packet(i,2) = node(i).y;
+    NodeInfo_Packet(i,3) = node(i).z;
+    NodeInfo_Packet(i,4) = node(i).energy;
+    NodeInfo_Packet(i,5) = node(i).distanceBS;
+    NodeInfo_Packet(i,6) = node(i).avgClusterEnergy;
+    NodeInfo_Packet(i,7) = node(i).CH_x;
+    NodeInfo_Packet(i,8) = node(i).CH_y;
+    NodeInfo_Packet(i,9) = node(i).CH_z;
 
 end
-
 X = NodeInfo_Packet;
 
-%% 6. INITIAL 3D NETWORK VISUALIZATION
-% Working: Display sensor nodes and the Base Station
-%          in the 3D simulation environment.
-
+% 0.3 Initial 3D Sensor Node Deployment
 figure;
 
-scatter3( ...
-    [node.x], ...
-    [node.y], ...
-    [node.z], ...
-    45, ...
-    'b', ...
-    'filled');
+scatter3([node.x], [node.y], [node.z], ...
+    45, 'b', 'filled');
 
 hold on;
 
-% Display Base Station
-scatter3( ...
-    BS.x, ...
-    BS.y, ...
-    BS.z, ...
-    100, ...
-    'r', ...
-    'filled');
+% Display Sensor Node numbers
+for i = 1:SN
 
-xlabel('X (m)');
-ylabel('Y (m)');
-zlabel('Z (m)');
+    text(node(i).x, ...
+        node(i).y, ...
+        node(i).z, ...
+        [' ' num2str(i)], ...
+        'FontSize', 8);
 
-title('3D Wireless Sensor Network Deployment');
+end
+
+% Plot Base Station
+scatter3(BS.x, BS.y, BS.z, ...
+    100, 'r', 'filled');
+
+text(BS.x, BS.y, BS.z, ...
+    ' BS', ...
+    'FontSize', 10);
+
+xlabel('Length of Network (m)');
+ylabel('Width of Network (m)');
+zlabel('Height of Network (m)');
+
+title('Random 3D Deployment of Sensor Nodes');
 
 grid on;
 
-axis([ ...
-    0 area_x ...
-    0 area_y ...
-    0 area_z]);
+axis([0 area_x 0 area_y 0 area_z]);
 
 view(3);
 
 hold off;
 
-%% STEP 2 - ANN1 INPUT PREPARATION AND CH SELECTION
-% ANN  = Artificial Neural Network
-% ANN1 = First Artificial Neural Network
-% CH   = Cluster Head
-% Job  : Prepare the first ANN inputs, normalize the data,
-%        generate the reference suitability target, train ANN1,
-%        calculate ANN scores, and select Cluster Heads.
-
-%% 1. ANN1 INPUTS
-% Working: Use the first 6 features from the Node Information Packet.
-% Features:
-% X, Y, Z, Energy, Distance to BS, Average Cluster Energy
+% 0.5 Inputs for the First Artificial Neural Network
 
 ANN1_Input = X(:,1:6);
-
-%% 2. MIN-MAX NORMALIZATION
-% Working: Convert every input feature into the range [0,1].
 
 inputMin = min(ANN1_Input);
 inputMax = max(ANN1_Input);
 
 inputRange = inputMax - inputMin;
-
-ANN1_Input_Norm = zeros(size(ANN1_Input));
 
 for j = 1:6
 
@@ -181,11 +121,9 @@ for j = 1:6
 
 end
 
-%% 3. ANN1 REFERENCE SUITABILITY TARGET
-% Working: Create the prototype target used to train ANN1.
-% Energy              = 40%
-% Distance to BS      = 30%
-% Average Cluster Energy = 30%
+%Energy              → 40%
+%Distance to BS      → 30%
+%Average cluster energy → 30%
 
 energyScore = ANN1_Input_Norm(:,4);
 
@@ -198,301 +136,828 @@ ANN1_Target = ...
     0.3 * distanceScore + ...
     0.3 * clusterEnergyScore;
 
-%% 4. ANN1 TRAINING DATA
-% Working: Transpose the data into the format required by feedforwardnet.
+size(ANN1_Target)
 
+% 8.1 Prepare data for First ANN
 ANN1_Input_Train = ANN1_Input_Norm';
 ANN1_Target_Train = ANN1_Target';
 
-%% 5. CREATE AND TRAIN ANN1
-% feedforwardnet = Feed-Forward Neural Network
-% Working: Create ANN1 with 10 hidden neurons and train it
-%          using the reference suitability target.
-
+% 8.2 Number of hidden neurons
 hiddenNeurons = 10;
 
+% 8.3 Create First ANN
 net1 = feedforwardnet(hiddenNeurons);
 
-net1 = train( ...
-    net1, ...
-    ANN1_Input_Train, ...
-    ANN1_Target_Train);
+% 8.4 Train First ANN
+net1 = train(net1, ANN1_Input_Train, ANN1_Target_Train);
 
-%% 6. GENERATE ANN1 SUITABILITY SCORE
-% Working: Calculate the suitability score of every sensor node.
-
+% 8.5 Generate ANN suitability score
 ANN1_Output = net1(ANN1_Input_Train)';
 
-%% 7. CLUSTER HEAD SELECTION
-% p = Desired percentage of Cluster Heads.
-% Working: Select the highest-scoring nodes as CHs.
-
+% 9.0 Calculate required number of CHs
 p = 0.1;
-
 numberOfCH = floor(p * SN);
 
-[sortedScores, sortedIndex] = ...
-    sort(ANN1_Output, 'descend');
+% 9.1 Rank nodes according to First ANN score
+[sortedScores, sortedIndex] = sort(ANN1_Output, 'descend');
 
+% 9.2 Select highest-scoring nodes as CHs
 CH_Index = sortedIndex(1:numberOfCH);
 
-%% 8. STORE CH STATUS
-% Working: Mark selected nodes as Cluster Heads.
-
+% 9.3 Mark selected nodes as CH
 isCH = false(SN,1);
-
 isCH(CH_Index) = true;
 
+% 9.4 Store CH status in node structure
 for i = 1:SN
     node(i).isCH = isCH(i);
 end
 
-%% STEP 3 - 3D CLUSTER FORMATION
-% Cluster = Group of sensor nodes served by one CH
-% Job    : Assign every non-CH node to its nearest CH
-%          using 3D Euclidean distance.
+% 10.1 Initialize cluster assignment
+clusterAssignment = zeros(SN,1);
 
-%% 1. INITIALIZE CLUSTERS
+% 10.2 Get coordinates of selected CHs
+CH_x = [node(CH_Index).x];
+CH_y = [node(CH_Index).y];
+CH_z = [node(CH_Index).z];
 
-Clusters = cell(numberOfCH,1);
-
-for k = 1:numberOfCH
-    Clusters{k} = CH_Index(k);
-end
-
-%% 2. ASSIGN NON-CH NODES TO NEAREST CH
-
+% 10.3 Assign every non-CH node to the nearest CH
 for i = 1:SN
 
-    if ~isCH(i)
+    % CH itself does not need to find a CH
+    if isCH(i)
+        clusterAssignment(i) = find(CH_Index == i);
+        continue;
+    end
 
-        minDistance = inf;
-        nearestCH = 0;
+    distanceToCH = zeros(1,numberOfCH);
 
-        for k = 1:numberOfCH
+    for j = 1:numberOfCH
 
-            ch = CH_Index(k);
+        distanceToCH(j) = sqrt( ...
+            (node(i).x - CH_x(j))^2 + ...
+            (node(i).y - CH_y(j))^2 + ...
+            (node(i).z - CH_z(j))^2);
 
-            distance3D = sqrt( ...
-                (node(i).x - node(ch).x)^2 + ...
-                (node(i).y - node(ch).y)^2 + ...
-                (node(i).z - node(ch).z)^2);
+    end
 
-            if distance3D < minDistance
+    [minDistance, nearestCH] = min(distanceToCH);
 
-                minDistance = distance3D;
-                nearestCH = ch;
+    clusterAssignment(i) = nearestCH;
+end
 
-            end
+% 10.4 Calculate cluster size
+clusterSize = zeros(numberOfCH,1);
 
-        end
+for i = 1:SN
+    clusterSize(clusterAssignment(i)) = ...
+        clusterSize(clusterAssignment(i)) + 1;
+end
 
-        Clusters{find(CH_Index == nearestCH)}(end+1) = i;
+% 11.1 Initialize average cluster energy
+avgClusterEnergy = zeros(numberOfCH,1);
 
-        node(i).CH_x = node(nearestCH).x;
-        node(i).CH_y = node(nearestCH).y;
-        node(i).CH_z = node(nearestCH).z;
+% 11.2 Calculate average residual energy of each cluster
+for j = 1:numberOfCH
+
+    clusterNodes = find(clusterAssignment == j);
+
+    clusterEnergy = [node(clusterNodes).energy];
+
+    avgClusterEnergy(j) = mean(clusterEnergy);
+
+end
+
+% 11.3 Store cluster average energy in every node
+for i = 1:SN
+
+    clusterID = clusterAssignment(i);
+
+    node(i).avgClusterEnergy = avgClusterEnergy(clusterID);
+
+end
+
+% 12.1 Create Second ANN input matrix
+ANN2_Input = zeros(numberOfCH,6);
+
+% 12.2 Fill Second ANN input matrix
+for j = 1:numberOfCH
+
+    chNode = CH_Index(j);
+
+    % CH coordinates
+    ANN2_Input(j,1) = node(chNode).x;
+    ANN2_Input(j,2) = node(chNode).y;
+    ANN2_Input(j,3) = node(chNode).z;
+
+    % CH residual energy
+    ANN2_Input(j,4) = node(chNode).energy;
+
+    % CH distance to BS
+    ANN2_Input(j,5) = node(chNode).distanceBS;
+
+    % Number of nodes in the CH's cluster
+    ANN2_Input(j,6) = clusterSize(j);
+
+end
+
+% 13.1 Find minimum and maximum of each Second ANN feature
+input2Min = min(ANN2_Input);
+input2Max = max(ANN2_Input);
+
+input2Range = input2Max - input2Min;
+
+% 13.2 Create normalized input matrix
+ANN2_Input_Norm = zeros(size(ANN2_Input));
+
+% 13.3 Normalize each feature
+for j = 1:6
+
+    if input2Range(j) == 0
+
+        ANN2_Input_Norm(:,j) = 0.5;
 
     else
 
-        node(i).CH_x = node(i).x;
-        node(i).CH_y = node(i).y;
-        node(i).CH_z = node(i).z;
+        ANN2_Input_Norm(:,j) = ...
+            (ANN2_Input(:,j) - input2Min(j)) ...
+            / input2Range(j);
 
     end
 
 end
 
-%% 3. CLUSTER INFORMATION
+% 13.4 Check dimensions
+size(ANN2_Input_Norm)
 
-clusterSize = zeros(numberOfCH,1);
-clusterEnergy = zeros(numberOfCH,1);
+% 14.1 Extract normalized Second ANN features
 
-for k = 1:numberOfCH
+% Higher energy is better
+energyScore = ANN2_Input_Norm(:,4);
 
-    members = Clusters{k};
+% Smaller distance to BS is better
+distanceScore = 1 - ANN2_Input_Norm(:,5);
 
-    clusterSize(k) = length(members);
+% Smaller cluster size is better
+clusterSizeScore = 1 - ANN2_Input_Norm(:,6);
 
-    clusterEnergy(k) = sum([node(members).energy]);
+
+% 14.2 Create prototype Main CH suitability target
+ANN2_Target = ...
+    0.4 * energyScore + ...
+    0.3 * distanceScore + ...
+    0.3 * clusterSizeScore;
+
+
+% 14.3 Check target size
+size(ANN2_Target)
+
+%% 15. Second ANN Creation and Training
+
+% 15.1 Prepare data for Second ANN
+ANN2_Input_Train = ANN2_Input_Norm';
+ANN2_Target_Train = ANN2_Target';
+
+% 15.2 Number of hidden neurons
+hiddenNeurons2 = 10;
+
+% 15.3 Create Second ANN
+net2 = feedforwardnet(hiddenNeurons2);
+
+% 15.4 Train Second ANN
+net2 = train(net2, ANN2_Input_Train, ANN2_Target_Train);
+
+% 15.5 Generate Main CH suitability score
+ANN2_Output = net2(ANN2_Input_Train)';
+
+% 15.6 Check output size
+size(ANN2_Output)
+
+%% 16. Main CH Selection
+
+% 16.1 Calculate required number of Main CHs
+q = 0.1;
+
+numberOfMainCH = floor(q * numberOfCH);
+
+
+% 16.2 Rank CHs according to Second ANN score
+[~, sortedMainIndex] = ...
+    sort(ANN2_Output, 'descend');
+
+
+% 16.3 Select highest-scoring CHs as Main CHs
+MainCH_Index = CH_Index(sortedMainIndex(1:numberOfMainCH));
+
+
+% 16.4 Mark Main CH status
+isMainCH = false(SN,1);
+
+isMainCH(MainCH_Index) = true;
+
+
+% 16.5 Store Main CH status in node structure
+for i = 1:SN
+
+    node(i).isMainCH = isMainCH(i);
 
 end
 
-%% 4. UPDATE AVERAGE CLUSTER ENERGY
 
-for k = 1:numberOfCH
+% 16.6 Store Main CH coordinates and information
+for j = 1:numberOfMainCH
 
-    members = Clusters{k};
+    mainNode = MainCH_Index(j);
 
-    avgEnergy = mean([node(members).energy]);
+    MainCH(j).x = node(mainNode).x;
+    MainCH(j).y = node(mainNode).y;
+    MainCH(j).z = node(mainNode).z;
 
-    for j = 1:length(members)
-
-        node(members(j)).avgClusterEnergy = avgEnergy;
-
-    end
+    MainCH(j).energy = node(mainNode).energy;
+    MainCH(j).distanceBS = node(mainNode).distanceBS;
 
 end
 
-%% 5. CLUSTER VISUALIZATION
+
+% 16.7 Check results
+numberOfMainCH
+
+MainCH_Index
+
+%% 16.7 3D Network After CH and Main CH Selection
 
 figure;
 
 hold on;
 
-scatter3( ...
-    [node(~isCH).x], ...
-    [node(~isCH).y], ...
-    [node(~isCH).z], ...
-    35, ...
-    'b', ...
-    'filled');
+% 1. Plot all Sensor Nodes
+scatter3([node.x], ...
+         [node.y], ...
+         [node.z], ...
+         35, 'b', 'filled');
 
-scatter3( ...
-    [node(isCH).x], ...
-    [node(isCH).y], ...
-    [node(isCH).z], ...
-    90, ...
-    'r', ...
-    'filled');
 
-scatter3( ...
-    BS.x, ...
-    BS.y, ...
-    BS.z, ...
-    120, ...
-    'k', ...
-    'filled');
+% 2. Plot Cluster Heads
+CH_x_plot = [node(CH_Index).x];
+CH_y_plot = [node(CH_Index).y];
+CH_z_plot = [node(CH_Index).z];
 
-for k = 1:numberOfCH
+scatter3(CH_x_plot, ...
+         CH_y_plot, ...
+         CH_z_plot, ...
+         100, 'g', 'filled');
 
-    ch = CH_Index(k);
-    members = Clusters{k};
 
-    for j = 1:length(members)
+% 3. Plot Main CH
+MainCH_x_plot = [node(MainCH_Index).x];
+MainCH_y_plot = [node(MainCH_Index).y];
+MainCH_z_plot = [node(MainCH_Index).z];
 
-        n = members(j);
+scatter3(MainCH_x_plot, ...
+         MainCH_y_plot, ...
+         MainCH_z_plot, ...
+         150, 'm', 'filled');
 
-        if n ~= ch
 
-            plot3( ...
-                [node(n).x node(ch).x], ...
-                [node(n).y node(ch).y], ...
-                [node(n).z node(ch).z], ...
-                'k-');
+% 4. Plot Base Station
+scatter3(BS.x, ...
+         BS.y, ...
+         BS.z, ...
+         150, 'r', 'filled');
+
+
+% 5. Add Sensor Node numbers
+for i = 1:SN
+
+    text(node(i).x, ...
+         node(i).y, ...
+         node(i).z, ...
+         [' ' num2str(i)], ...
+         'FontSize', 7);
+
+end
+
+
+% 6. Add CH labels
+for j = 1:numberOfCH
+
+    chNode = CH_Index(j);
+
+    text(node(chNode).x, ...
+         node(chNode).y, ...
+         node(chNode).z, ...
+         ' CH', ...
+         'FontSize', 9, ...
+         'FontWeight', 'bold');
+
+end
+
+
+% 7. Add Main CH label
+for j = 1:numberOfMainCH
+
+    mainNode = MainCH_Index(j);
+
+    text(node(mainNode).x, ...
+         node(mainNode).y, ...
+         node(mainNode).z, ...
+         ' MCH', ...
+         'FontSize', 10, ...
+         'FontWeight', 'bold');
+
+end
+
+
+% 8. Add BS label
+text(BS.x, ...
+     BS.y, ...
+     BS.z, ...
+     ' BS', ...
+     'FontSize', 10, ...
+     'FontWeight', 'bold');
+
+
+% 9. Axis labels
+xlabel('Length of Network (m)');
+ylabel('Width of Network (m)');
+zlabel('Height of Network (m)');
+
+title('3D WSN After CH and Main CH Selection');
+
+
+% 10. Grid and axis
+grid on;
+
+axis([0 area_x 0 area_y 0 area_z]);
+
+view(3);
+
+
+% 11. Legend
+legend('Sensor Nodes', ...
+       'Cluster Heads', ...
+       'Main CH', ...
+       'Base Station', ...
+       'Location', 'best');
+
+hold off;
+
+%% 17. Update Complete Node Information Packet
+
+for i = 1:SN
+
+    % Find which cluster this node belongs to
+    clusterID = clusterAssignment(i);
+
+    % Find the Cluster Head of that cluster
+    chNode = CH_Index(clusterID);
+
+    % Update CH coordinates
+    node(i).CH_x = node(chNode).x;
+    node(i).CH_y = node(chNode).y;
+    node(i).CH_z = node(chNode).z;
+
+end
+
+
+% Rebuild the complete 9-feature Node Information Packet
+NodeInfo_Packet = zeros(SN,9);
+
+for i = 1:SN
+
+    NodeInfo_Packet(i,1) = node(i).x;
+    NodeInfo_Packet(i,2) = node(i).y;
+    NodeInfo_Packet(i,3) = node(i).z;
+    NodeInfo_Packet(i,4) = node(i).energy;
+    NodeInfo_Packet(i,5) = node(i).distanceBS;
+    NodeInfo_Packet(i,6) = node(i).avgClusterEnergy;
+
+    NodeInfo_Packet(i,7) = node(i).CH_x;
+    NodeInfo_Packet(i,8) = node(i).CH_y;
+    NodeInfo_Packet(i,9) = node(i).CH_z;
+
+end
+
+
+% Display the size of the packet
+size(NodeInfo_Packet)
+
+%% 18. TDMA Slot Assignment
+
+TDMA_Slot = zeros(SN,1);
+
+for j = 1:numberOfCH
+
+    % Find all nodes belonging to this cluster
+    clusterNodes = find(clusterAssignment == j);
+
+    % Assign one TDMA slot to each node
+    for slot = 1:length(clusterNodes)
+
+        nodeID = clusterNodes(slot);
+
+        TDMA_Slot(nodeID) = slot;
+
+    end
+
+end
+
+disp('Node ID    Cluster ID    TDMA Slot');
+
+for i = 1:SN
+    fprintf('%7d %12d %12d\n', ...
+        i, clusterAssignment(i), TDMA_Slot(i));
+end
+
+%% 19. Energy Consumption Model
+
+% Packet size
+packetLength = 4000;          % bits
+
+% Radio energy parameters
+ETX = 50e-9;                  % J/bit
+ERX = 50e-9;                  % J/bit
+Efs = 10e-12;                 % J/bit/m^2
+EDA = 5e-9;                   % J/bit
+
+% Example transmission distance for testing
+testDistance = 20;            % meters
+
+% Transmission energy
+testTxEnergy = packetLength * ETX + ...
+    packetLength * Efs * testDistance^2;
+
+% Reception energy
+testRxEnergy = packetLength * ERX;
+
+% Data aggregation energy
+testAggregationEnergy = packetLength * EDA;
+
+% Display energy values
+fprintf('\n--- Energy Consumption Model ---\n');
+
+fprintf('Packet Length       = %.0f bits\n', packetLength);
+fprintf('Transmission Energy = %.6e J\n', testTxEnergy);
+fprintf('Reception Energy    = %.6e J\n', testRxEnergy);
+fprintf('Aggregation Energy  = %.6e J\n', testAggregationEnergy);
+
+%% 20. Round-by-Round Simulation
+
+round = 1;
+
+% Storage for simulation results
+roundNumber = [];
+aliveNodeCount = [];
+deadNodeCount = [];
+totalEnergy = [];
+
+% Continue simulation while at least one node is alive
+while true
+
+    %% 20.1 Find Alive Nodes
+
+    alive = find([node.energy] > 0);
+
+    aliveNodes = length(alive);
+    deadNodes = SN - aliveNodes;
+
+    % Stop when no nodes are alive
+    if aliveNodes == 0
+        break;
+    end
+
+    %% 20.2 Calculate Total Remaining Energy
+
+    currentTotalEnergy = sum([node.energy]);
+
+    %% 20.3 Store Round Results
+
+    roundNumber(end+1) = round;
+    aliveNodeCount(end+1) = aliveNodes;
+    deadNodeCount(end+1) = deadNodes;
+    totalEnergy(end+1) = currentTotalEnergy;
+
+    %% 20.4 Display Current Round
+
+    fprintf('Round %d: Alive = %d, Dead = %d, Total Energy = %.6f J\n', ...
+        round, aliveNodes, deadNodes, currentTotalEnergy);
+
+    %% 20.5 Move to Next Round
+
+    round = round + 1;
+
+end
+
+%% 21. Dynamic CH Selection for Each Round
+
+round = 1;
+
+% Storage for simulation results
+roundNumber = [];
+aliveNodeCount = [];
+deadNodeCount = [];
+totalEnergy = [];
+
+while true
+
+    %% 21.1 Find Alive Nodes
+
+    alive = find([node.energy] > 0);
+
+    aliveNodes = length(alive);
+    deadNodes = SN - aliveNodes;
+
+    % Stop simulation when no nodes are alive
+    if aliveNodes == 0
+        break;
+    end
+
+
+    %% 21.2 Update Distance to Base Station
+
+    for i = 1:SN
+
+        if node(i).energy > 0
+
+            node(i).distanceBS = sqrt( ...
+                (node(i).x - BS.x)^2 + ...
+                (node(i).y - BS.y)^2 + ...
+                (node(i).z - BS.z)^2);
 
         end
 
     end
 
+
+    %% 21.3 Prepare Current First ANN Input
+
+    ANN1_Input = zeros(aliveNodes,6);
+
+    for k = 1:aliveNodes
+
+        i = alive(k);
+
+        ANN1_Input(k,1) = node(i).x;
+        ANN1_Input(k,2) = node(i).y;
+        ANN1_Input(k,3) = node(i).z;
+        ANN1_Input(k,4) = node(i).energy;
+        ANN1_Input(k,5) = node(i).distanceBS;
+        ANN1_Input(k,6) = node(i).avgClusterEnergy;
+
+    end
+
+
+    %% 21.4 Normalize Current First ANN Input
+
+    inputMin = min(ANN1_Input);
+    inputMax = max(ANN1_Input);
+    inputRange = inputMax - inputMin;
+
+    ANN1_Input_Norm = zeros(size(ANN1_Input));
+
+    for j = 1:6
+
+        if inputRange(j) == 0
+
+            ANN1_Input_Norm(:,j) = 0.5;
+
+        else
+
+            ANN1_Input_Norm(:,j) = ...
+                (ANN1_Input(:,j) - inputMin(j)) ...
+                / inputRange(j);
+
+        end
+
+    end
+
+
+    %% 21.5 First ANN Prediction
+
+    ANN1_Input_Train = ANN1_Input_Norm';
+
+    ANN1_Output = net1(ANN1_Input_Train)';
+
+    
+    %% 21.6 Select Cluster Heads
+
+    p = 0.1;
+
+    numberOfCH = floor(p * aliveNodes);
+
+    % At least one CH is required while nodes are alive
+    numberOfCH = max(1,numberOfCH);
+
+    [sortedScores, sortedIndex] = ...
+        sort(ANN1_Output,'descend');
+
+    % Convert alive-node positions into actual node IDs
+    CH_Index = alive(sortedIndex(1:numberOfCH));
+
+
+    %% 21.7 Mark Cluster Heads
+
+    isCH = false(SN,1);
+
+    isCH(CH_Index) = true;
+
+    for i = 1:SN
+
+        node(i).isCH = isCH(i);
+
+    end
+
+
+    %% 21.8 Display Current Round CH Selection
+    
+    fprintf('\n========================================\n');
+    fprintf('ROUND %d\n', round);
+    fprintf('========================================\n');
+    
+    fprintf('Alive Nodes   = %d\n', aliveNodes);
+    fprintf('Dead Nodes    = %d\n', deadNodes);
+    fprintf('Number of CHs = %d\n', numberOfCH);
+    
+    fprintf('CH Node IDs: ');
+    fprintf('%d ', CH_Index);
+    fprintf('\n');
+        
+    %% 21.9 Calculate Current Total Energy
+
+    currentTotalEnergy = sum([node.energy]);
+
+    roundNumber(end+1) = round;
+    aliveNodeCount(end+1) = aliveNodes;
+    deadNodeCount(end+1) = deadNodes;
+    totalEnergy(end+1) = currentTotalEnergy;
+
+    %% 22. Dynamic Cluster Formation
+
+    clusterAssignment = zeros(SN,1);
+
+    % Coordinates of current Cluster Heads
+    CH_x = [node(CH_Index).x];
+    CH_y = [node(CH_Index).y];
+    CH_z = [node(CH_Index).z];
+
+
+    % Assign every alive node to the nearest Cluster Head
+    for k = 1:aliveNodes
+
+        i = alive(k);
+
+        % Cluster Head does not need to search for a cluster
+        if isCH(i)
+
+            clusterAssignment(i) = ...
+                find(CH_Index == i);
+
+            continue;
+
+        end
+
+
+        % Calculate distance from node to every CH
+        distanceToCH = zeros(1,numberOfCH);
+
+        for j = 1:numberOfCH
+
+            distanceToCH(j) = sqrt( ...
+                (node(i).x - CH_x(j))^2 + ...
+                (node(i).y - CH_y(j))^2 + ...
+                (node(i).z - CH_z(j))^2);
+
+        end
+
+
+        % Select nearest CH
+        [~,nearestCH] = min(distanceToCH);
+
+        clusterAssignment(i) = nearestCH;
+
+    end
+
 end
 
-xlabel('X (m)');
-ylabel('Y (m)');
-zlabel('Z (m)');
+%% 22.1 Calculate Cluster Size
 
-title('3D Cluster Formation');
+clusterSize = zeros(numberOfCH,1);
 
-grid on;
-axis([0 area_x 0 area_y 0 area_z]);
-view(3);
+for k = 1:aliveNodes
 
-hold off;
+    i = alive(k);
 
-%% STEP 4 - ANN2 AND MAIN CH SELECTION
-% ANN2 = Second Artificial Neural Network
-% MCH  = Main Cluster Head
-% Job  : Evaluate Cluster Heads using residual energy,
-%        distance to BS, and cluster size, then select MCHs.
+    clusterID = clusterAssignment(i);
 
-%% 1. ANN2 INPUT PREPARATION
+    clusterSize(clusterID) = ...
+        clusterSize(clusterID) + 1;
+
+end
+
+%% 22.2 Calculate Average Cluster Energy
+
+avgClusterEnergy = zeros(numberOfCH,1);
+
+for j = 1:numberOfCH
+
+    clusterNodes = find( ...
+        clusterAssignment == j & ...
+        [node.energy]' > 0);
+
+    if isempty(clusterNodes)
+
+        avgClusterEnergy(j) = 0;
+
+    else
+
+        clusterEnergy = [node(clusterNodes).energy];
+
+        avgClusterEnergy(j) = mean(clusterEnergy);
+
+    end
+
+end
+
+%% 22.3 Update Node Average Cluster Energy
+
+for k = 1:aliveNodes
+
+    i = alive(k);
+
+    clusterID = clusterAssignment(i);
+
+    node(i).avgClusterEnergy = ...
+        avgClusterEnergy(clusterID);
+
+end
+
+%% 23. Dynamic Second ANN Input
 
 ANN2_Input = zeros(numberOfCH,6);
 
-for k = 1:numberOfCH
+for j = 1:numberOfCH
 
-    ch = CH_Index(k);
+    chNode = CH_Index(j);
 
-    ANN2_Input(k,1) = node(ch).x;
-    ANN2_Input(k,2) = node(ch).y;
-    ANN2_Input(k,3) = node(ch).z;
-    ANN2_Input(k,4) = node(ch).energy;
-    ANN2_Input(k,5) = node(ch).distanceBS;
-    ANN2_Input(k,6) = clusterSize(k);
+    ANN2_Input(j,1) = node(chNode).x;
+    ANN2_Input(j,2) = node(chNode).y;
+    ANN2_Input(j,3) = node(chNode).z;
+    ANN2_Input(j,4) = node(chNode).energy;
+    ANN2_Input(j,5) = node(chNode).distanceBS;
+    ANN2_Input(j,6) = clusterSize(j);
 
 end
 
-%% 2. ANN2 NORMALIZATION
+%% 23.1 Normalize Second ANN Input
 
-inputMin2 = min(ANN2_Input);
-inputMax2 = max(ANN2_Input);
-
-inputRange2 = inputMax2 - inputMin2;
+input2Min = min(ANN2_Input);
+input2Max = max(ANN2_Input);
+input2Range = input2Max - input2Min;
 
 ANN2_Input_Norm = zeros(size(ANN2_Input));
 
 for j = 1:6
 
-    if inputRange2(j) == 0
+    if input2Range(j) == 0
+
         ANN2_Input_Norm(:,j) = 0.5;
+
     else
+
         ANN2_Input_Norm(:,j) = ...
-            (ANN2_Input(:,j) - inputMin2(j)) / inputRange2(j);
+            (ANN2_Input(:,j) - input2Min(j)) ...
+            / input2Range(j);
+
     end
 
 end
 
-%% 3. ANN2 REFERENCE TARGET
-% Energy              = 40%
-% Distance suitability = 30%
-% Cluster size         = 30%
-
-energyScore2 = ANN2_Input_Norm(:,4);
-
-distanceScore2 = 1 - ANN2_Input_Norm(:,5);
-
-clusterSizeScore2 = ANN2_Input_Norm(:,6);
-
-ANN2_Target = ...
-    0.4 * energyScore2 + ...
-    0.3 * distanceScore2 + ...
-    0.3 * clusterSizeScore2;
-
-%% 4. TRAIN ANN2
+%% 23.2 Second ANN Prediction
 
 ANN2_Input_Train = ANN2_Input_Norm';
-ANN2_Target_Train = ANN2_Target';
-
-net2 = feedforwardnet(10);
-
-net2 = train( ...
-    net2, ...
-    ANN2_Input_Train, ...
-    ANN2_Target_Train);
-
-%% 5. CALCULATE ANN2 SCORES
 
 ANN2_Output = net2(ANN2_Input_Train)';
 
-%% 6. MAIN CH SELECTION
-% q = Percentage of selected Main Cluster Heads.
+%% 23.3 Main CH Selection
 
 q = 0.1;
 
-numberOfMCH = max(1,floor(q * numberOfCH));
+numberOfMainCH = floor(q * numberOfCH);
 
-[~,MCH_Sorted_Index] = ...
+% Keep at least one Main CH while CHs exist
+numberOfMainCH = max(1,numberOfMainCH);
+
+[sortedMainScores, sortedMainIndex] = ...
     sort(ANN2_Output,'descend');
 
-MCH_Position = MCH_Sorted_Index(1:numberOfMCH);
+MainCH_Index = ...
+    CH_Index(sortedMainIndex(1:numberOfMainCH));
 
-MCH_Index = CH_Index(MCH_Position);
 
-%% 7. STORE MAIN CH STATUS
-
+% Mark Main CH nodes
 isMainCH = false(SN,1);
 
-isMainCH(MCH_Index) = true;
+isMainCH(MainCH_Index) = true;
 
 for i = 1:SN
 
@@ -500,345 +965,460 @@ for i = 1:SN
 
 end
 
-%% 8. DISPLAY ANN SELECTION RESULTS
+%% 23.4 Display Current Round Main CH Selection
 
-fprintf('\n============================================\n');
-fprintf('ANN1 CLUSTER HEAD SELECTION\n');
-fprintf('============================================\n');
+fprintf('Number of Main CHs = %d\n', numberOfMainCH);
 
-fprintf('Total Sensor Nodes : %d\n',SN);
-fprintf('Selected CHs       : %d\n',numberOfCH);
+fprintf('Main CH Node IDs: ');
+fprintf('%d ', MainCH_Index);
+fprintf('\n');
 
-fprintf('\nCluster Head IDs:\n');
-disp(CH_Index');
+fprintf('========================================\n');
 
-fprintf('\n============================================\n');
-fprintf('ANN2 MAIN CH SELECTION\n');
-fprintf('============================================\n');
+%% 24. Sensor Node to Cluster Head Communication
 
-fprintf('Total CHs           : %d\n',numberOfCH);
-fprintf('Selected Main CHs   : %d\n',numberOfMCH);
+% Store energy consumed by each node during this communication
+energyConsumed = zeros(SN,1);
 
-fprintf('\nMain Cluster Head IDs:\n');
-disp(MCH_Index');
+% Energy consumed by each Cluster Head for receiving packets
+CH_ReceiveEnergy = zeros(numberOfCH,1);
 
-%% 9. 3D CH AND MAIN CH VISUALIZATION
 
-figure;
+% Go through every alive sensor node
+for k = 1:aliveNodes
 
-hold on;
+    i = alive(k);
 
-nonCH = ~isCH;
+    % Skip the Cluster Head itself
+    if isCH(i)
+        continue;
+    end
 
-scatter3( ...
-    [node(nonCH).x], ...
-    [node(nonCH).y], ...
-    [node(nonCH).z], ...
-    30,'b','filled');
 
-scatter3( ...
-    [node(isCH).x], ...
-    [node(isCH).y], ...
-    [node(isCH).z], ...
-    80,'r','filled');
+    % Find the cluster of this sensor node
+    clusterID = clusterAssignment(i);
 
-scatter3( ...
-    [node(isMainCH).x], ...
-    [node(isMainCH).y], ...
-    [node(isMainCH).z], ...
-    130,'m','filled');
+    % Find the actual Cluster Head node
+    chNode = CH_Index(clusterID);
 
-scatter3( ...
-    BS.x, ...
-    BS.y, ...
-    BS.z, ...
-    120,'k','filled');
 
-xlabel('X (m)');
-ylabel('Y (m)');
-zlabel('Z (m)');
+    % Calculate 3D distance from sensor node to CH
+    distanceToCH = sqrt( ...
+        (node(i).x - node(chNode).x)^2 + ...
+        (node(i).y - node(chNode).y)^2 + ...
+        (node(i).z - node(chNode).z)^2);
 
-title('ANN1 CH and ANN2 Main CH Selection');
 
-legend( ...
-    'Sensor Nodes', ...
-    'Cluster Heads', ...
-    'Main Cluster Heads', ...
-    'Base Station');
+    % Transmission energy
+    txEnergy = packetLength * ETX + ...
+        packetLength * Efs * distanceToCH^2;
 
-grid on;
 
-axis([0 area_x 0 area_y 0 area_z]);
+    % Reception energy at CH
+    rxEnergy = packetLength * ERX;
 
-view(3);
 
-hold off;
+    % Store energy consumed by sensor node
+    energyConsumed(i) = energyConsumed(i) + txEnergy;
 
-%% STEP 5 - TDMA AND ENERGY MODEL
-% TDMA = Time Division Multiple Access
-% ETX  = Energy consumed during transmission
-% ERX  = Energy consumed during reception
-% Efs  = Free-space amplifier energy
-% EDA  = Data aggregation energy
-% Job  : Define the radio-energy model and prepare
-%        communication energy calculations.
 
-%% 1. RADIO PARAMETERS
-
-packetLength = 4000;
-
-ETX = 50e-9;
-ERX = 50e-9;
-Efs = 10e-12;
-EDA = 5e-9;
-
-%% 2. TDMA SCHEDULE
-% Working: Each cluster member gets one transmission slot.
-%          CHs receive data from their cluster members.
-
-TDMA_Schedule = cell(numberOfCH,1);
-
-for k = 1:numberOfCH
-
-    members = Clusters{k};
-
-    members = members(members ~= CH_Index(k));
-
-    TDMA_Schedule{k} = members;
+    % Store energy consumed by CH
+    CH_ReceiveEnergy(clusterID) = ...
+        CH_ReceiveEnergy(clusterID) + rxEnergy;
 
 end
 
-%% 3. NODE TO CH ENERGY CALCULATION
+%% 25. Cluster Head to Main CH Communication
 
-Energy_Node_to_CH = zeros(SN,1);
+% Energy consumed by CHs for sending data to Main CH
+CH_TransmitEnergy = zeros(numberOfCH,1);
 
-for k = 1:numberOfCH
+% Energy consumed by Main CHs for receiving CH data
+MainCH_ReceiveEnergy = zeros(numberOfMainCH,1);
 
-    ch = CH_Index(k);
 
-    members = TDMA_Schedule{k};
+% Process every current Cluster Head
+for j = 1:numberOfCH
 
-    for j = 1:length(members)
+    chNode = CH_Index(j);
 
-        n = members(j);
+    % Main CH does not send to itself
+    if isMainCH(chNode)
+        continue;
+    end
 
-        d = sqrt( ...
-            (node(n).x - node(ch).x)^2 + ...
-            (node(n).y - node(ch).y)^2 + ...
-            (node(n).z - node(ch).z)^2);
 
-        E_TX = ...
-            packetLength * ETX + ...
-            packetLength * Efs * d^2;
+    % Find the nearest Main CH
+    distanceToMainCH = zeros(1,numberOfMainCH);
 
-        Energy_Node_to_CH(n) = E_TX;
+    for m = 1:numberOfMainCH
+
+        mainNode = MainCH_Index(m);
+
+        distanceToMainCH(m) = sqrt( ...
+            (node(chNode).x - node(mainNode).x)^2 + ...
+            (node(chNode).y - node(mainNode).y)^2 + ...
+            (node(chNode).z - node(mainNode).z)^2);
 
     end
 
+
+    % Select nearest Main CH
+    [minDistance,nearestMainCH] = ...
+        min(distanceToMainCH);
+
+
+    % Actual Main CH node
+    mainNode = MainCH_Index(nearestMainCH);
+
+
+    % Transmission energy from CH to Main CH
+    txEnergy = packetLength * ETX + ...
+        packetLength * Efs * minDistance^2;
+
+
+    % Reception energy at Main CH
+    rxEnergy = packetLength * ERX;
+
+
+    % Store CH transmission energy
+    CH_TransmitEnergy(j) = txEnergy;
+
+
+    % Store Main CH reception energy
+    MainCH_ReceiveEnergy(nearestMainCH) = ...
+        MainCH_ReceiveEnergy(nearestMainCH) + rxEnergy;
+
 end
+%% 26. Main CH to Base Station Communication
 
-%% 4. CH RECEIVING ENERGY
+% Energy consumed by each Main CH for transmission to BS
+MainCH_TransmitEnergy = zeros(numberOfMainCH,1);
 
-Energy_CH_RX = zeros(SN,1);
+% Data aggregation energy at Main CH
+MainCH_AggregationEnergy = zeros(numberOfMainCH,1);
 
-for k = 1:numberOfCH
+% Number of packets received by each Main CH from CHs
+MainCH_ReceivedPackets = zeros(numberOfMainCH,1);
 
-    ch = CH_Index(k);
 
-    members = TDMA_Schedule{k};
+% Process every Main CH
+for m = 1:numberOfMainCH
 
-    Energy_CH_RX(ch) = ...
-        length(members) * packetLength * ERX;
+    mainNode = MainCH_Index(m);
 
-end
 
-%% 5. CH TO MAIN CH ENERGY
+    % Count how many ordinary CHs send data to this Main CH
+    for j = 1:numberOfCH
 
-Energy_CH_to_MCH = zeros(SN,1);
+        chNode = CH_Index(j);
 
-for k = 1:numberOfCH
+        % Do not count the Main CH itself
+        if chNode == mainNode
+            continue;
+        end
 
-    ch = CH_Index(k);
 
-    if ~isMainCH(ch)
+        % Find nearest Main CH of this CH
+        distanceToMainCH = zeros(1,numberOfMainCH);
 
-        distances = zeros(numberOfMCH,1);
+        for n = 1:numberOfMainCH
 
-        for m = 1:numberOfMCH
+            targetMainCH = MainCH_Index(n);
 
-            mch = MCH_Index(m);
-
-            distances(m) = sqrt( ...
-                (node(ch).x - node(mch).x)^2 + ...
-                (node(ch).y - node(mch).y)^2 + ...
-                (node(ch).z - node(mch).z)^2);
+            distanceToMainCH(n) = sqrt( ...
+                (node(chNode).x - node(targetMainCH).x)^2 + ...
+                (node(chNode).y - node(targetMainCH).y)^2 + ...
+                (node(chNode).z - node(targetMainCH).z)^2);
 
         end
 
-        [d,minIndex] = min(distances);
 
-        targetMCH = MCH_Index(minIndex);
+        [~,nearestMainCH] = min(distanceToMainCH);
 
-        E_TX_MCH = ...
-            packetLength * ETX + ...
-            packetLength * Efs * d^2;
 
-        Energy_CH_to_MCH(ch) = E_TX_MCH;
+        % If this CH sends to the current Main CH
+        if nearestMainCH == m
+
+            MainCH_ReceivedPackets(m) = ...
+                MainCH_ReceivedPackets(m) + 1;
+
+        end
 
     end
 
-end
 
-%% 6. MAIN CH TO BS ENERGY
+    % Data aggregation at Main CH
+    MainCH_AggregationEnergy(m) = ...
+        MainCH_ReceivedPackets(m) * packetLength * EDA;
 
-Energy_MCH_to_BS = zeros(SN,1);
 
-for m = 1:numberOfMCH
+    % Distance from Main CH to Base Station
+    distanceMainCH_BS = sqrt( ...
+        (node(mainNode).x - BS.x)^2 + ...
+        (node(mainNode).y - BS.y)^2 + ...
+        (node(mainNode).z - BS.z)^2);
 
-    mch = MCH_Index(m);
 
-    dBS = sqrt( ...
-        (node(mch).x - BS.x)^2 + ...
-        (node(mch).y - BS.y)^2 + ...
-        (node(mch).z - BS.z)^2);
-
-    E_TX_BS = ...
+    % Main CH transmission energy to BS
+    MainCH_TransmitEnergy(m) = ...
         packetLength * ETX + ...
-        packetLength * Efs * dBS^2;
-
-    Energy_MCH_to_BS(mch) = E_TX_BS;
+        packetLength * Efs * distanceMainCH_BS^2;
 
 end
 
-%% 7. DATA AGGREGATION ENERGY
+%% 27. Update Residual Energy
 
-Energy_Data_Aggregation = zeros(SN,1);
-
-for k = 1:numberOfCH
-
-    ch = CH_Index(k);
-
-    members = TDMA_Schedule{k};
-
-    Energy_Data_Aggregation(ch) = ...
-        length(members) * packetLength * EDA;
-
-end
-
-%% 8. TOTAL ENERGY REQUIRED IN CURRENT ROUND
-
-Energy_Total = ...
-    Energy_Node_to_CH + ...
-    Energy_CH_RX + ...
-    Energy_CH_to_MCH + ...
-    Energy_MCH_to_BS + ...
-    Energy_Data_Aggregation;
-
-%% STEP 6 - ENERGY UPDATE AND NODE DEATH
-% FND = First Node Death
-% HND = Half Node Death
-% LND = Last Node Death
-% Job : Apply communication energy consumption and determine
-%       which nodes are alive or dead.
+% ---------------------------------------------------------
+% 27.1 Subtract Sensor Node Transmission Energy
+% ---------------------------------------------------------
 
 for i = 1:SN
 
-    node(i).energy = node(i).energy - Energy_Total(i);
+    if node(i).energy > 0
 
-    if node(i).energy < 0
-        node(i).energy = 0;
+        node(i).energy = ...
+            node(i).energy - energyConsumed(i);
+
     end
 
 end
 
+
+% ---------------------------------------------------------
+% 27.2 Subtract CH Reception Energy
+% ---------------------------------------------------------
+
+for j = 1:numberOfCH
+
+    chNode = CH_Index(j);
+
+    if node(chNode).energy > 0
+
+        node(chNode).energy = ...
+            node(chNode).energy - CH_ReceiveEnergy(j);
+
+    end
+
+end
+
+
+% ---------------------------------------------------------
+% 27.3 Subtract CH Transmission Energy
+% ---------------------------------------------------------
+
+for j = 1:numberOfCH
+
+    chNode = CH_Index(j);
+
+    if node(chNode).energy > 0
+
+        node(chNode).energy = ...
+            node(chNode).energy - CH_TransmitEnergy(j);
+
+    end
+
+end
+
+
+% ---------------------------------------------------------
+% 27.4 Subtract Main CH Reception Energy
+% ---------------------------------------------------------
+
+for m = 1:numberOfMainCH
+
+    mainNode = MainCH_Index(m);
+
+    if node(mainNode).energy > 0
+
+        node(mainNode).energy = ...
+            node(mainNode).energy - MainCH_ReceiveEnergy(m);
+
+    end
+
+end
+
+
+% ---------------------------------------------------------
+% 27.5 Subtract Main CH Aggregation Energy
+% ---------------------------------------------------------
+
+for m = 1:numberOfMainCH
+
+    mainNode = MainCH_Index(m);
+
+    if node(mainNode).energy > 0
+
+        node(mainNode).energy = ...
+            node(mainNode).energy - MainCH_AggregationEnergy(m);
+
+    end
+
+end
+
+
+% ---------------------------------------------------------
+% 27.6 Subtract Main CH Transmission Energy
+% ---------------------------------------------------------
+
+for m = 1:numberOfMainCH
+
+    mainNode = MainCH_Index(m);
+
+    if node(mainNode).energy > 0
+
+        node(mainNode).energy = ...
+            node(mainNode).energy - MainCH_TransmitEnergy(m);
+
+    end
+
+end
+
+
+% ---------------------------------------------------------
+% 27.7 Prevent Negative Energy
+% ---------------------------------------------------------
+
+for i = 1:SN
+
+    if node(i).energy < 0
+
+        node(i).energy = 0;
+
+    end
+
+end
+
+%% 28. Record Current Round Results
+
+% Find currently alive nodes
 alive = find([node.energy] > 0);
-dead  = find([node.energy] <= 0);
 
-aliveCount = length(alive);
-deadCount  = length(dead);
+aliveNodes = length(alive);
+deadNodes = SN - aliveNodes;
 
-%% STEP 7 - PERFORMANCE STORAGE
-% Job : Store node lifetime, energy, CH and Main CH information.
 
-round = 1;
+% Calculate total remaining network energy
+currentTotalEnergy = sum([node.energy]);
 
-aliveNodes = zeros(1,1);
-deadNodes = zeros(1,1);
-totalEnergy = zeros(1,1);
-CH_History = cell(1,1);
-MCH_History = cell(1,1);
 
-aliveNodes(round) = aliveCount;
-deadNodes(round) = deadCount;
-totalEnergy(round) = sum([node.energy]);
+% Store results
+roundNumber(end+1) = round;
 
-CH_History{round} = CH_Index;
-MCH_History{round} = MCH_Index;
+aliveNodeCount(end+1) = aliveNodes;
 
-FND = 0;
-HND = 0;
-LND = 0;
+deadNodeCount(end+1) = deadNodes;
 
-if aliveCount < SN && FND == 0
-    FND = round;
+totalEnergy(end+1) = currentTotalEnergy;
+
+
+% Display round information
+fprintf(['Round %d: Alive = %d, Dead = %d, ' ...
+    'Total Energy = %.6f J\n'], ...
+    round, ...
+    aliveNodes, ...
+    deadNodes, ...
+    currentTotalEnergy);
+
+
+% Move to next round
+round = round + 1;
+
+%% 29. Network Lifetime Results
+
+% Convert stored results into column vectors
+roundNumber = roundNumber(:);
+aliveNodeCount = aliveNodeCount(:);
+deadNodeCount = deadNodeCount(:);
+totalEnergy = totalEnergy(:);
+
+
+% ---------------------------------------------------------
+% 29.1 First Node Death
+% ---------------------------------------------------------
+
+firstDeadIndex = find(deadNodeCount >= 1,1);
+
+if isempty(firstDeadIndex)
+
+    firstNodeDeathRound = NaN;
+
+else
+
+    firstNodeDeathRound = ...
+        roundNumber(firstDeadIndex);
+
 end
 
-if aliveCount <= floor(SN/2) && HND == 0
-    HND = round;
+
+% ---------------------------------------------------------
+% 29.2 Half Node Death
+% ---------------------------------------------------------
+
+halfDeadIndex = ...
+    find(deadNodeCount >= floor(SN/2),1);
+
+if isempty(halfDeadIndex)
+
+    halfNodeDeathRound = NaN;
+
+else
+
+    halfNodeDeathRound = ...
+        roundNumber(halfDeadIndex);
+
 end
 
-if aliveCount == 0 && LND == 0
-    LND = round;
+
+% ---------------------------------------------------------
+% 29.3 Last Node Death
+% ---------------------------------------------------------
+
+lastDeadIndex = find(aliveNodeCount == 0,1);
+
+if isempty(lastDeadIndex)
+
+    lastNodeDeathRound = NaN;
+
+else
+
+    lastNodeDeathRound = ...
+        roundNumber(lastDeadIndex);
+
 end
 
-%% STEP 8 - FINAL NETWORK STATUS
-% Job : Display the results of the completed simulation round.
 
-fprintf('\n============================================\n');
-fprintf('NETWORK PERFORMANCE\n');
-fprintf('============================================\n');
+% ---------------------------------------------------------
+% 29.4 Display Results
+% ---------------------------------------------------------
 
-fprintf('Simulation Round       : %d\n',round);
-fprintf('Alive Nodes             : %d\n',aliveCount);
-fprintf('Dead Nodes              : %d\n',deadCount);
-fprintf('Total Residual Energy   : %.6f J\n', ...
-    totalEnergy(round));
+fprintf('\n');
+fprintf('========================================\n');
+fprintf('        NETWORK LIFETIME RESULTS\n');
+fprintf('========================================\n');
 
-fprintf('\nCH IDs:\n');
-disp(CH_Index');
+fprintf('First Node Death Round  = %g\n', ...
+    firstNodeDeathRound);
 
-fprintf('Main CH IDs:\n');
-disp(MCH_Index');
+fprintf('Half Node Death Round   = %g\n', ...
+    halfNodeDeathRound);
 
-%% STEP 9 - ENERGY AND NODE STATUS FIGURES
-% Job : Display residual energy and alive/dead nodes.
+fprintf('Last Node Death Round   = %g\n', ...
+    lastNodeDeathRound);
+
+fprintf('Total Simulation Rounds = %d\n', ...
+    roundNumber(end));
+
+fprintf('========================================\n');
+
+%% 30.1 Alive and Dead Nodes
 
 figure;
 
-plot( ...
-    1:round, ...
-    totalEnergy(1:round), ...
-    'LineWidth',2);
-
-xlabel('Round');
-ylabel('Residual Energy (J)');
-title('Network Residual Energy');
-
-grid on;
-
-figure;
-
-plot( ...
-    1:round, ...
-    aliveNodes(1:round), ...
-    'LineWidth',2);
-
+plot(roundNumber,aliveNodeCount,'LineWidth',2);
 hold on;
 
-plot( ...
-    1:round, ...
-    deadNodes(1:round), ...
-    'LineWidth',2);
+plot(roundNumber,deadNodeCount,'LineWidth',2);
 
 xlabel('Round');
 ylabel('Number of Nodes');
@@ -851,61 +1431,117 @@ grid on;
 
 hold off;
 
-%% STEP 10 - FINAL 3D NETWORK
-% Job : Show the final condition of the sensor network.
+%% 30.2 Total Network Energy
+
+figure;
+
+plot(roundNumber,totalEnergy,'LineWidth',2);
+
+xlabel('Round');
+ylabel('Total Residual Energy (J)');
+
+title('Total Network Energy');
+
+grid on;
+
+%% 30.3 Final 3D Network
 
 figure;
 
 hold on;
 
+
+% ---------------------------------------------------------
+% All Sensor Nodes
+% ---------------------------------------------------------
+
+alive = find([node.energy] > 0);
+dead = find([node.energy] <= 0);
+
+
+% Plot alive nodes
 if ~isempty(alive)
 
     scatter3( ...
         [node(alive).x], ...
         [node(alive).y], ...
         [node(alive).z], ...
-        45,'b','filled');
+        35,'b','filled');
 
 end
 
+
+% Plot dead nodes
 if ~isempty(dead)
 
     scatter3( ...
         [node(dead).x], ...
         [node(dead).y], ...
         [node(dead).z], ...
-        45,'r','filled');
+        35,'k','filled');
 
 end
 
-scatter3( ...
-    [node(CH_Index).x], ...
-    [node(CH_Index).y], ...
-    [node(CH_Index).z], ...
-    90,'g','filled');
+
+% ---------------------------------------------------------
+% Final Cluster Heads
+% ---------------------------------------------------------
+
+finalCH = find([node.isCH]);
+
+if ~isempty(finalCH)
+
+    scatter3( ...
+        [node(finalCH).x], ...
+        [node(finalCH).y], ...
+        [node(finalCH).z], ...
+        100,'g','filled');
+
+end
+
+
+% ---------------------------------------------------------
+% Final Main CH
+% ---------------------------------------------------------
+
+finalMainCH = find([node.isMainCH]);
+
+if ~isempty(finalMainCH)
+
+    scatter3( ...
+        [node(finalMainCH).x], ...
+        [node(finalMainCH).y], ...
+        [node(finalMainCH).z], ...
+        150,'m','filled');
+
+end
+
+
+% ---------------------------------------------------------
+% Base Station
+% ---------------------------------------------------------
 
 scatter3( ...
-    [node(MCH_Index).x], ...
-    [node(MCH_Index).y], ...
-    [node(MCH_Index).z], ...
-    120,'m','filled');
+    BS.x, ...
+    BS.y, ...
+    BS.z, ...
+    150,'r','filled');
 
-scatter3( ...
-    BS.x,BS.y,BS.z, ...
-    120,'k','filled');
 
-xlabel('X (m)');
-ylabel('Y (m)');
-zlabel('Z (m)');
+% ---------------------------------------------------------
+% Labels
+% ---------------------------------------------------------
 
-title('Final 3D WSN Status');
+text(BS.x,BS.y,BS.z,' BS', ...
+     'FontSize',10, ...
+     'FontWeight','bold');
 
-legend( ...
-    'Alive Nodes', ...
-    'Dead Nodes', ...
-    'Cluster Heads', ...
-    'Main Cluster Heads', ...
-    'Base Station');
+
+xlabel('Length of Network (m)');
+ylabel('Width of Network (m)');
+zlabel('Height of Network (m)');
+
+title('Final 3D Wireless Sensor Network');
 
 grid on;
 
@@ -913,31 +1549,12 @@ axis([0 area_x 0 area_y 0 area_z]);
 
 view(3);
 
+
+legend('Alive Nodes', ...
+       'Dead Nodes', ...
+       'Cluster Heads', ...
+       'Main CH', ...
+       'Base Station', ...
+       'Location','best');
+
 hold off;
-
-%% STEP 11 - LIFETIME RESULTS
-% Job : Display the calculated network lifetime indicators.
-
-fprintf('\n============================================\n');
-fprintf('NETWORK LIFETIME RESULTS\n');
-fprintf('============================================\n');
-
-if FND > 0
-    fprintf('First Node Death      : Round %d\n',FND);
-else
-    fprintf('First Node Death      : Not reached\n');
-end
-
-if HND > 0
-    fprintf('Half Node Death       : Round %d\n',HND);
-else
-    fprintf('Half Node Death       : Not reached\n');
-end
-
-if LND > 0
-    fprintf('Last Node Death       : Round %d\n',LND);
-else
-    fprintf('Last Node Death       : Not reached\n');
-end
-
-fprintf('============================================\n');
