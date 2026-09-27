@@ -1,8 +1,8 @@
 need update
 
-# 🧠 Artificial Neural Network-Assisted 3D Wireless Sensor Network
+# 🧠 Wireless Sensor Network , LEACH, ANN
 
-> **An Artificial Neural Network (ANN)-assisted energy-aware clustering and hierarchical routing framework for a three-dimensional Wireless Sensor Network (WSN).**
+> **An Artificial Neural Network (ANN)-assisted energy-aware clustering and hierarchical routing framework for a 3D Wireless Sensor Network (WSN).**
 
 ---
 

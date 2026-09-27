@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        ANN-Based LEACH Wireless Sensor Network
+    </title>
+
+    <!-- CSS -->
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- ================================================== -->
+    <!-- MAIN APPLICATION -->
+    <!-- ================================================== -->
+
+    <div class="app">
+
+
+        <!-- ================================================== -->
+        <!-- SIDEBAR -->
+        <!-- ================================================== -->
+
+        <aside class="sidebar">
+
+
+            <!-- PROJECT TITLE -->
+
+            <div class="sidebar-logo">
+
+                <div class="logo-icon">
+                    WSN
+                </div>
+
+                <div>
+
+                    <h2>
+                        ANN-LEACH
+                    </h2>
+
+                    <p>
+                        Wireless Sensor Network
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- NAVIGATION -->
+
+            <nav class="navigation">
+
+                <a
+                    href="#dashboard"
+                    class="nav-item active"
+                >
+                    Dashboard
+                </a>
+
+                <a
+                    href="#simulation"
+                    class="nav-item"
+                >
+                    Simulation
+                </a>
+
+                <a
+                    href="#network"
+                    class="nav-item"
+                >
+                    Network
+                </a>
+
+                <a
+                    href="#ann"
+                    class="nav-item"
+                >
+                    ANN Analysis
+                </a>
+
+                <a
+                    href="#metrics"
+                    class="nav-item"
+                >
+                    Metrics
+                </a>
+
+            </nav>
+
+
+            <!-- SIDEBAR STATUS -->
+
+            <div class="sidebar-status">
+
+                <span class="status-dot"></span>
+
+                <span>
+                    Simulation Ready
+                </span>
+
+            </div>
+
+
+        </aside>
+
+
+
+        <!-- ================================================== -->
+        <!-- MAIN CONTENT -->
+        <!-- ================================================== -->
+
+        <main class="main-content">
+
+
+            <!-- ================================================== -->
+            <!-- TOP HEADER -->
+            <!-- ================================================== -->
+
+            <header class="top-header">
+
+                <div>
+
+                    <p class="page-label">
+                        WIRELESS SENSOR NETWORK
+                    </p>
+
+                    <h1>
+                        ANN-Based LEACH Simulation
+                    </h1>
+
+                    <p class="page-description">
+                        Energy-aware clustering and
+                        multi-hop communication framework
+                    </p>
+
+                </div>
+
+
+                <div class="header-actions">
+
+                    <button
+                        id="runSimulationButton"
+                        class="btn btn-primary"
+                    >
+                        Run Simulation
+                    </button>
+
+                    <button
+                        id="resetButton"
+                        class="btn btn-secondary"
+                    >
+                        Reset
+                    </button>
+
+                </div>
+
+            </header>
+
+
+
+            <!-- ================================================== -->
+            <!-- DASHBOARD -->
+            <!-- ================================================== -->
+
+            <section
+                id="dashboard"
+                class="page-section"
+            >
+
+
+                <!-- ================================================== -->
+                <!-- STATUS CARDS -->
+                <!-- ================================================== -->
+
+                <div class="stats-grid">
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            Simulation Round
+                        </div>
+
+                        <div
+                            id="currentRound"
+                            class="stat-value"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            Alive Nodes
+                        </div>
+
+                        <div
+                            id="aliveNodes"
+                            class="stat-value"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            Dead Nodes
+                        </div>
+
+                        <div
+                            id="deadNodes"
+                            class="stat-value"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            Residual Energy
+                        </div>
+
+                        <div
+                            id="residualEnergy"
+                            class="stat-value"
+                        >
+                            0 J
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ================================================== -->
+                <!-- SIMULATION AREA -->
+                <!-- ================================================== -->
+
+                <div class="content-grid">
+
+
+                    <!-- NETWORK VISUALIZATION -->
+
+                    <div class="panel network-panel">
+
+                        <div class="panel-header">
+
+                            <div>
+
+                                <h2>
+                                    Network Visualization
+                                </h2>
+
+                                <p>
+                                    Sensor deployment,
+                                    Cluster Heads and
+                                    Base Station
+                                </p>
+
+                            </div>
+
+                            <span class="panel-badge">
+                                3D
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            id="networkVisualization"
+                            class="visualization-area"
+                        >
+
+                            <div class="empty-state">
+
+                                <div class="empty-icon">
+                                    +
+                                </div>
+
+                                <h3>
+                                    Network Visualization
+                                </h3>
+
+                                <p>
+                                    Run the simulation to
+                                    visualize the network.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- CONTROL PANEL -->
+
+                    <div
+                        id="simulation"
+                        class="panel control-panel"
+                    >
+
+                        <div class="panel-header">
+
+                            <div>
+
+                                <h2>
+                                    Simulation Controls
+                                </h2>
+
+                                <p>
+                                    Configure the WSN
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="control-group">
+
+
+                            <label for="nodeCount">
+                                Number of Nodes
+                            </label>
+
+                            <input
+                                type="number"
+                                id="nodeCount"
+                                value="100"
+                                min="10"
+                                max="1000"
+                            >
+
+
+                        </div>
+
+
+                        <div class="control-group">
+
+
+                            <label for="initialEnergy">
+                                Initial Energy (J)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="initialEnergy"
+                                value="0.5"
+                                min="0.01"
+                                step="0.01"
+                            >
+
+
+                        </div>
+
+
+                        <div class="control-group">
+
+
+                            <label for="chProbability">
+                                CH Probability
+                            </label>
+
+                            <input
+                                type="number"
+                                id="chProbability"
+                                value="0.10"
+                                min="0.01"
+                                max="0.50"
+                                step="0.01"
+                            >
+
+
+                        </div>
+
+
+                        <div class="control-group">
+
+
+                            <label for="packetSize">
+                                Packet Size (bits)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="packetSize"
+                                value="4000"
+                                min="100"
+                                step="100"
+                            >
+
+
+                        </div>
+
+
+                        <div class="control-divider"></div>
+
+
+                        <h3 class="control-section-title">
+                            Network Dimensions
+                        </h3>
+
+
+                        <div class="input-row">
+
+
+                            <div class="control-group">
+
+                                <label for="areaX">
+                                    X (m)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="areaX"
+                                    value="100"
+                                >
+
+                            </div>
+
+
+                            <div class="control-group">
+
+                                <label for="areaY">
+                                    Y (m)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="areaY"
+                                    value="100"
+                                >
+
+                            </div>
+
+
+                            <div class="control-group">
+
+                                <label for="areaZ">
+                                    Z (m)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="areaZ"
+                                    value="100"
+                                >
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="control-divider"></div>
+
+
+                        <h3 class="control-section-title">
+                            Base Station
+                        </h3>
+
+
+                        <div class="input-row">
+
+
+                            <div class="control-group">
+
+                                <label for="bsX">
+                                    X
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="bsX"
+                                    value="50"
+                                >
+
+                            </div>
+
+
+                            <div class="control-group">
+
+                                <label for="bsY">
+                                    Y
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="bsY"
+                                    value="50"
+                                >
+
+                            </div>
+
+
+                            <div class="control-group">
+
+                                <label for="bsZ">
+                                    Z
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="bsZ"
+                                    value="0"
+                                >
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ================================================== -->
+                <!-- ANN STATUS -->
+                <!-- ================================================== -->
+
+                <div
+                    id="ann"
+                    class="panel ann-panel"
+                >
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                ANN Decision Pipeline
+                            </h2>
+
+                            <p>
+                                Cluster Head and Main Cluster Head
+                                selection
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pipeline">
+
+
+                        <div class="pipeline-step">
+
+                            <span class="pipeline-number">
+                                01
+                            </span>
+
+                            <h3>
+                                ANN1
+                            </h3>
+
+                            <p>
+                                CH Selection
+                            </p>
+
+                        </div>
+
+
+                        <div class="pipeline-arrow">
+                            →
+                        </div>
+
+
+                        <div class="pipeline-step">
+
+                            <span class="pipeline-number">
+                                02
+                            </span>
+
+                            <h3>
+                                Clustering
+                            </h3>
+
+                            <p>
+                                Nearest CH
+                            </p>
+
+                        </div>
+
+
+                        <div class="pipeline-arrow">
+                            →
+                        </div>
+
+
+                        <div class="pipeline-step">
+
+                            <span class="pipeline-number">
+                                03
+                            </span>
+
+                            <h3>
+                                ANN2
+                            </h3>
+
+                            <p>
+                                Main CH Selection
+                            </p>
+
+                        </div>
+
+
+                        <div class="pipeline-arrow">
+                            →
+                        </div>
+
+
+                        <div class="pipeline-step">
+
+                            <span class="pipeline-number">
+                                04
+                            </span>
+
+                            <h3>
+                                Communication
+                            </h3>
+
+                            <p>
+                                Energy Update
+                            </p>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ================================================== -->
+                <!-- METRICS -->
+                <!-- ================================================== -->
+
+                <div
+                    id="metrics"
+                    class="content-grid"
+                >
+
+
+                    <!-- ALIVE NODES -->
+
+                    <div class="panel chart-panel">
+
+                        <div class="panel-header">
+
+                            <div>
+
+                                <h2>
+                                    Network Lifetime
+                                </h2>
+
+                                <p>
+                                    Alive nodes per round
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="aliveNodesChart"
+                            class="chart-area"
+                        >
+
+                            <div class="empty-state">
+
+                                <p>
+                                    No simulation data
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ENERGY -->
+
+                    <div class="panel chart-panel">
+
+                        <div class="panel-header">
+
+                            <div>
+
+                                <h2>
+                                    Residual Energy
+                                </h2>
+
+                                <p>
+                                    Energy remaining per round
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="energyChart"
+                            class="chart-area"
+                        >
+
+                            <div class="empty-state">
+
+                                <p>
+                                    No simulation data
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ================================================== -->
+                <!-- LIFETIME METRICS -->
+                <!-- ================================================== -->
+
+                <div class="stats-grid lifetime-grid">
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            FND
+                        </div>
+
+                        <div
+                            id="fnd"
+                            class="stat-value"
+                        >
+                            -
+                        </div>
+
+                        <div class="stat-description">
+                            First Node Death
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            HND
+                        </div>
+
+                        <div
+                            id="hnd"
+                            class="stat-value"
+                        >
+                            -
+                        </div>
+
+                        <div class="stat-description">
+                            Half Node Death
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            LND
+                        </div>
+
+                        <div
+                            id="lnd"
+                            class="stat-value"
+                        >
+                            -
+                        </div>
+
+                        <div class="stat-description">
+                            Last Node Death
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            Throughput
+                        </div>
+
+                        <div
+                            id="throughput"
+                            class="stat-value"
+                        >
+                            0
+                        </div>
+
+                        <div class="stat-description">
+                            Delivered bits
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ================================================== -->
+                <!-- CH HISTORY -->
+                <!-- ================================================== -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                CH / Main CH History
+                            </h2>
+
+                            <p>
+                                Cluster Head selection
+                                for each round
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Round
+                                    </th>
+
+                                    <th>
+                                        Cluster Heads
+                                    </th>
+
+                                    <th>
+                                        Main CH
+                                    </th>
+
+                                    <th>
+                                        Alive Nodes
+                                    </th>
+
+                                    <th>
+                                        Residual Energy
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody
+                                id="chHistoryTable"
+                            >
+
+                                <tr>
+
+                                    <td colspan="5">
+                                        No simulation data
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+        </main>
+
+    </div>
+
+
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
