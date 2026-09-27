@@ -1,0 +1,7 @@
+# Python
+__pycache__/
+*.pyc
+
+# Generated data
+3_Results/
+*.csv
